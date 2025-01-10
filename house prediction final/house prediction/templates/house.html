@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>House Price Prediction</h1>
+    <form id="predictionForm">
+        <label>Bedrooms:</label><input type="number" id="bedrooms" required><br>
+        <label>Bathrooms:</label><input type="number" id="bathrooms" required><br>
+        <label>Sqft Living:</label><input type="number" id="sqft_living" required><br>
+        <label>Sqft Lot:</label><input type="number" id="sqft_lot" required><br>
+        <label>Floors:</label><input type="number" id="floors" required><br>
+        <label>Waterfront:</label><input type="number" id="waterfront" required><br>
+        <label>View:</label><input type="number" id="view" required><br>
+        <label>Condition:</label><input type="number" id="condition" required><br>
+        <button type="button" onclick="getPrediction()">Predict</button>
+    </form>
+    <p id="result"></p>
+
+    <script>
+        async function getPrediction() {
+            // Collect values from the input fields
+            const features = [
+                parseInt(document.getElementById('bedrooms').value),
+                parseInt(document.getElementById('bathrooms').value),
+                parseInt(document.getElementById('sqft_living').value),
+                parseInt(document.getElementById('sqft_lot').value),
+                parseInt(document.getElementById('floors').value),
+                parseInt(document.getElementById('waterfront').value),
+                parseInt(document.getElementById('view').value),
+                parseInt(document.getElementById('condition').value)
+            ];
+
+            try {
+                // Send a POST request to the Flask API
+                const response = await fetch('http://127.0.0.1:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ features })
+                });
+
+                // Parse the response from Flask
+                const data = await response.json();
+
+                // Check if the response is OK and display the result
+                if (response.ok) {
+                    document.getElementById('result').innerText = `Predicted Price: $${data.predicted_price}`;
+                } else {
+                    document.getElementById('result').innerText = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                // Handle any errors in sending the request
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
